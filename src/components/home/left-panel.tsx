@@ -1,31 +1,49 @@
 "use client";
-import React from "react";
-import UserListDialog from "./user-list-dialog";
-import { useConvexAuth, useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { ListFilter, Search } from "lucide-react";
 import { Input } from "../ui/input";
 import ThemeSwitch from "./theme-switch";
 import Conversation from "./conversation";
-import { conversations } from "../../dummy-data/db";
 import { UserButton } from "@clerk/nextjs";
 
-export const LeftPanel = () => {
+import UserListDialog from "./user-list-dialog";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useEffect } from "react";
+import { useConversationStore } from "@/store/chat-store";
+
+const LeftPanel = () => {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const conversations = useQuery(
     api.conversations.getMyConversations,
     isAuthenticated ? undefined : "skip"
   );
+
+  const { selectedConversation, setSelectedConversation } =
+    useConversationStore();
+
+  useEffect(() => {
+    const conversationIds = conversations?.map(
+      (conversation) => conversation._id
+    );
+    if (
+      selectedConversation &&
+      conversationIds &&
+      !conversationIds.includes(selectedConversation._id)
+    ) {
+      setSelectedConversation(null);
+    }
+  }, [conversations, selectedConversation, setSelectedConversation]);
+
+  if (isLoading) return null;
+
   return (
     <div className="w-1/4 border-gray-600 border-r">
       <div className="sticky top-0 bg-left-panel z-10">
         {/* Header */}
         <div className="flex justify-between bg-gray-primary p-3 items-center">
-          {/* <User size={24} /> */}
           <UserButton />
 
           <div className="flex items-center gap-3">
-            {/* <UserListDialog /> */}
             {isAuthenticated && <UserListDialog />}
             <ThemeSwitch />
           </div>
@@ -69,3 +87,4 @@ export const LeftPanel = () => {
     </div>
   );
 };
+export default LeftPanel;

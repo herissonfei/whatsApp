@@ -1,4 +1,4 @@
-import { LeftPanel } from "@/components/home/left-panel";
+import LeftPanel from "@/components/home/left-panel";
 import RightPanel from "@/components/home/right-panel";
 
 export default function Home() {
